@@ -4,7 +4,7 @@ pipeline {
         PROJECT_ID = 'chat-xe'
         CLUSTER_NAME = 'learnk8s-cluster-prod'
         LOCATION = 'us-east1'
-        CREDENTIALS_ID = 'gke'
+        CREDENTIALS_ID = 'chat-xe'
     }
     stages {
         stage("Checkout code") {
@@ -37,7 +37,7 @@ pipeline {
                     ]) {
                    sh 'curl -LO "https://storage.googleapis.com/kubernetes-release/release/v1.20.5/bin/linux/amd64/kubectl"'  
                    sh 'chmod u+x ./kubectl'  
-                   sh './kubectl apply -f nginx.yaml'
+                   sh './kubectl apply -f deployment.yaml'
             }
         }
     }
