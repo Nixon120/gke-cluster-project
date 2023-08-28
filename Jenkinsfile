@@ -1,10 +1,11 @@
-pipeline {
+
+  pipeline {
     agent any
     environment {
         PROJECT_ID = 'chat-xe'
-        CLUSTER_NAME = 'learnk8s-cluster-prod'
         LOCATION = 'us-east1'
         CREDENTIALS_ID = 'chat-xe'
+        CLUSTER_NAME_PROD = 'learnk8s-cluster-prod'
     }
     stages {
         stage("Checkout code") {
@@ -15,7 +16,7 @@ pipeline {
         stage("Build image") {
             steps {
                 script {
-                    myapp = docker.build("nixonlauture/hello:${env.BUILD_ID}")
+                    myapp = docker.build("DOCKER-HUB-USERNAME/hello:${env.BUILD_ID}")
                 }
             }
         }
@@ -29,15 +30,10 @@ pipeline {
                 }
             }
         }
-               stage('Deploy to GKE') {
+        stage('Deploy to GKE production cluster') {
             steps{
-                step(
-                    withKubeConfig([credentialsId: env.CREDENTIALS_ID,
-                    clusterName: env.CLUSTER_NAME
-                    ]) {
-                   sh 'curl -LO "https://storage.googleapis.com/kubernetes-release/release/v1.20.5/bin/linux/amd64/kubectl"'  
-                   sh 'chmod u+x ./kubectl'  
-                   sh './kubectl apply -f deployment.yaml'
+                input message:"Proceed with final deployment?"
+                step([$class: 'KubernetesEngineBuilder', projectId: env.PROJECT_ID, clusterName: env.CLUSTER_NAME_PROD, location: env.LOCATION, manifestPattern: 'deployment.yaml', credentialsId: env.CREDENTIALS_ID, verifyDeployments: true])
             }
         }
     }
