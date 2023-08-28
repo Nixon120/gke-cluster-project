@@ -29,10 +29,15 @@ pipeline {
                 }
             }
         }
-        stage('Deploy to GKE') {
+               stage('Deploy to GKE') {
             steps{
-                sh "sed -i 's/hello:latest/hello:${env.BUILD_ID}/g' deployment.yaml"
-                step([$class: 'KubernetesEngineBuilder', projectId: env.PROJECT_ID, clusterName: env.CLUSTER_NAME, location: env.LOCATION, manifestPattern: 'deployment.yaml', credentialsId: env.CREDENTIALS_ID, verifyDeployments: true])
+                step(
+                    withKubeConfig([credentialsId: env.CREDENTIALS_ID,
+                    clusterName: env.CLUSTER_NAME
+                    ]) {
+                   sh 'curl -LO "https://storage.googleapis.com/kubernetes-release/release/v1.20.5/bin/linux/amd64/kubectl"'  
+                   sh 'chmod u+x ./kubectl'  
+                   sh './kubectl apply -f nginx.yaml'
             }
         }
     }
