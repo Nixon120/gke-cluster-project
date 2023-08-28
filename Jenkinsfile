@@ -1,9 +1,9 @@
 pipeline {
     agent any
     environment {
-        PROJECT_ID = 'PROJECT-ID'
-        CLUSTER_NAME = 'CLUSTER-NAME'
-        LOCATION = 'CLUSTER-LOCATION'
+        PROJECT_ID = 'chat-xe'
+        CLUSTER_NAME = 'learnk8s-cluster-prod'
+        LOCATION = 'us-east1'
         CREDENTIALS_ID = 'gke'
     }
     stages {
@@ -15,7 +15,7 @@ pipeline {
         stage("Build image") {
             steps {
                 script {
-                    myapp = docker.build("DOCKER-HUB-USERNAME/hello:${env.BUILD_ID}")
+                    myapp = docker.build("nixonlauture/hello:${env.BUILD_ID}")
                 }
             }
         }
