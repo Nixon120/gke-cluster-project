@@ -5,7 +5,7 @@
         PROJECT_ID = 'chat-xe'
         LOCATION = 'us-east1'
         CREDENTIALS_ID = 'chat-xe'
-        CLUSTER_NAME_PROD = 'learnk8s-cluster-prod'
+        CLUSTER_NAME = 'learnk8s-cluster-prod'
     }
     stages {
         stage("Checkout code") {
