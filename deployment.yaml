@@ -39,13 +39,13 @@ spec:
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: httpbin
+  name: hello
   namespace: default
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: httpbin
+    name: hello
   minReplicas: 1
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
@@ -53,13 +53,13 @@ spec:
 apiVersion: autoscaling.k8s.io/v1beta2
 kind: VerticalPodAutoscaler
 metadata:
-  name: httpbin-vpa
+  name: hello-vpa
   namespace: default
 spec:
   targetRef:
     apiVersion: "apps/v1"
     kind:       Deployment
-    name:       httpbin
+    name:       hello
   updatePolicy:
     updateMode: "Auto"
 
