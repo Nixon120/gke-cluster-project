@@ -48,23 +48,7 @@ spec:
     name: hello
   minReplicas: 1
   maxReplicas: 10
-  targetCPUUtilizationPercentage: 80
----
-apiVersion: autoscaling.k8s.io/v1beta2
-kind: VerticalPodAutoscaler
-metadata:
-  name: hello-vpa
-  namespace: default
-spec:
-  targetRef:
-    apiVersion: "apps/v1"
-    kind:       Deployment
-    name:       hello
-  updatePolicy:
-    updateMode: "Auto"
-
-
-  
+  targetCPUUtilizationPercentage: 80  
 
 ---
 apiVersion: networking.k8s.io/v1
