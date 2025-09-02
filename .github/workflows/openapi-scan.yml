@@ -1,0 +1,28 @@
+name: API Security Check
+on:
+  push:
+    paths:
+      - 'openapi.yaml'
+  pull_request:
+    paths:
+      - 'openapi.yaml'
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Run Spectral for OpenAPI linting
+      - name: Lint OpenAPI
+        uses: stoplightio/spectral-action@v0
+        with:
+          file_glob: "openapi.yaml"
+          fail_severity: "warn"
+
+      # Run your SaaS scanner via CLI/API
+      - name: Run IntelliParse Scanner
+        run: |
+          curl -X POST https://your-saas.com/api/scan \
+            -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
+            -F "file=@openapi.yaml"
