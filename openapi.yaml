@@ -1,0 +1,187 @@
+openapi: 3.0.3
+info:
+  title: Vulnerable Demo API
+  version: "0.1.0"
+  description: >
+    An intentionally misconfigured OpenAPI spec for testing security scanners.
+    DO NOT deploy in production.
+
+servers:
+  # ❌ Plain HTTP (not HTTPS)
+  - url: http://api.example.com/v1
+
+# ❌ No global security (everything public by default)
+security: []
+
+paths:
+  /auth/login:
+    post:
+      summary: Login (returns token)
+      # ❌ Response content type */* is overly broad
+      responses:
+        "200":
+          description: OK
+          content:
+            "*/*":
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: JWT token
+                  # ❌ Sensitive data in response (discouraged)
+                  passwordHint:
+                    type: string
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  # ❌ Verbose internal error leakage example
+                  stack:
+                    type: string
+  /users:
+    get:
+      summary: List users (public)
+      # ❌ Unbounded array + unbounded object fields
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+
+    post:
+      summary: Create user
+      # ❌ GET/POST ok, but later we'll do GET with body on /search
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCreate"
+      responses:
+        "201":
+          description: Created
+
+  /users/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+    get:
+      summary: Get user (public)
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users/search:
+    get:
+      summary: Search users
+      # ❌ GET with requestBody (anti-pattern)
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+
+  /admin/deleteUser:
+    post:
+      summary: Delete user (admin only)
+      description: |
+        ❌ INTENTIONALLY left **without** security to simulate a critical misconfiguration.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId: { type: string }
+      responses:
+        "204":
+          description: Deleted
+
+  /payments/export:
+    get:
+      summary: Export payments as CSV
+      # ❌ No rate limiting documented; also security omitted
+      responses:
+        "200":
+          description: OK
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+
+components:
+  securitySchemes:
+    # ❌ API key in query string (weak) instead of header
+    apiKeyQuery:
+      type: apiKey
+      in: query
+      name: api_key
+    # ❌ Basic auth present but not applied anywhere
+    basicAuth:
+      type: http
+      scheme: basic
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id: { type: string }
+        email:
+          type: string
+          format: email
+          # ❌ No maxLength
+        name:
+          type: string
+          # ❌ No maxLength
+        roles:
+          type: array
+          items: { type: string }
+          # ❌ No maxItems (unbounded)
+        createdAt:
+          type: string
+          format: date-time
+
+    UserCreate:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          # ❌ Weak constraints
+          nullable: true          # password should never be nullable
+          minLength: 0            # allows empty password
+        isAdmin:
+          type: boolean
+          default: false
