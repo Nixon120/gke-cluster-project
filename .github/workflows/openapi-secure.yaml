@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 env:
-  APIMON_TOKEN: ${{ secrets.APIMON_TOKEN }}
+  APIMON_TOKEN: ip_820b73pj5yy
   SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
 jobs:
