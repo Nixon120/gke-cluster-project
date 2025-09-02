@@ -17,7 +17,7 @@ jobs:
       - name: Lint OpenAPI
         uses: stoplightio/spectral-action@v0
         with:
-          file_glob: "openapi.yaml"
+          file_glob: "openapi*.yaml"
           fail_severity: "warn"
 
       # Run your SaaS scanner via CLI/API
